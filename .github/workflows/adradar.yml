@@ -1,0 +1,76 @@
+name: AdRadar daily sweep
+
+# Sweeps each competitor's Meta Ad Library once a day, diffs against the
+# committed snapshot, and pushes new/winner ads to Slack/Discord. The updated
+# snapshot is committed back so the next run can compute a real diff.
+
+on:
+  schedule:
+    - cron: "0 8 * * *" # 08:00 UTC every day
+  workflow_dispatch: {} #  …or trigger it by hand from the Actions tab
+
+permissions:
+  contents: write # required to commit the updated snapshot back to the repo
+
+# Never let two sweeps race on the same snapshot files.
+concurrency:
+  group: adradar-sweep
+  cancel-in-progress: false
+
+jobs:
+  radar:
+    runs-on: ubuntu-latest
+    strategy:
+      # Don't let one competitor's failure abort the others.
+      fail-fast: false
+      # One snapshot file per page id is committed sequentially.
+      max-parallel: 1
+      matrix:
+        page:
+          - "111111111" # ← replace with a real competitor page id
+          - "222222222" # ← add as many as you like
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        # --ignore-scripts skips the postinstall Playwright download here; we
+        # install Chromium explicitly in the next step with the OS deps.
+        run: npm ci --ignore-scripts
+
+      - name: Install Chromium (with system deps)
+        run: npx playwright install --with-deps chromium
+
+      - name: Build
+        run: npm run build
+
+      - name: Sweep page ${{ matrix.page }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          node dist/index.js \
+            --page-id "${{ matrix.page }}" \
+            --data "data/${{ matrix.page }}.json" \
+            --country US
+
+      - name: Commit updated snapshot
+        run: |
+          git config user.name  "adradar-bot"
+          git config user.email "adradar@users.noreply.github.com"
+          git add "data/${{ matrix.page }}.json"
+          if git diff --cached --quiet; then
+            echo "No snapshot changes for ${{ matrix.page }} — nothing to commit."
+          else
+            git commit -m "chore(adradar): update snapshot for ${{ matrix.page }}"
+            # Rebase-pull guards against the previous matrix leg's push.
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || true
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi

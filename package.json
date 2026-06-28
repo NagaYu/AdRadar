@@ -1,0 +1,54 @@
+{
+  "name": "adradar",
+  "version": "1.0.0",
+  "description": "Radar for your competitors' Meta (Facebook) ads. Scrape the Ad Library, detect brand-new creatives and long-running winners, and ping Slack/Discord automatically.",
+  "type": "module",
+  "license": "MIT",
+  "author": "AdRadar contributors",
+  "keywords": [
+    "facebook-ads",
+    "meta-ad-library",
+    "competitive-intelligence",
+    "ad-spy",
+    "playwright",
+    "scraper",
+    "growth-hacking",
+    "marketing",
+    "cli"
+  ],
+  "bin": {
+    "adradar": "./dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "start": "node ./dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test test/**/*.test.ts",
+    "postinstall": "playwright install chromium",
+    "lint": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "colorette": "^2.0.20",
+    "commander": "^12.1.0",
+    "dotenv": "^16.4.5",
+    "playwright": "^1.48.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "tsup": "^8.3.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}
