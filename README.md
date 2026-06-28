@@ -11,6 +11,7 @@
 
 Brand-new and long-running ads are pushed straight to **Slack** or **Discord** with the copy, the start date, and an **image preview** — so your whole growth team sees them before your competitor's funnel out-converts yours.
 
+[![CI](https://github.com/NagaYu/AdRadar/actions/workflows/ci.yml/badge.svg)](https://github.com/NagaYu/AdRadar/actions/workflows/ci.yml)
 [![Status: Experimental](https://img.shields.io/badge/status-experimental-orange.svg)](#-project-status)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D18-43853d.svg)](https://nodejs.org)
