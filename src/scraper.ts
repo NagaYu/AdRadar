@@ -213,12 +213,14 @@ export async function scrapeAdLibrary(
       hasTouch: false,
       javaScriptEnabled: true,
       bypassCSP: true,
+      // Only set Accept-Language. We deliberately DO NOT hand-spoof the
+      // Sec-Ch-Ua* client hints or Upgrade-Insecure-Requests: Chromium already
+      // emits accurate values for those, and overriding them with static
+      // strings creates an inconsistent fingerprint that Meta blocks on
+      // (verified: the manual client-hint headers cause the Ad Library to
+      // return a blank, result-less page).
       extraHTTPHeaders: {
         "Accept-Language": "en-US,en;q=0.9",
-        "Sec-Ch-Ua": '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
-        "Sec-Ch-Ua-Mobile": "?0",
-        "Sec-Ch-Ua-Platform": '"macOS"',
-        "Upgrade-Insecure-Requests": "1",
       },
     });
 
@@ -486,28 +488,36 @@ async function extractAds(page: Page): Promise<RawAd[]> {
     };
 
     /**
-     * Walk upward from a text anchor to the nearest element that "looks like"
-     * a full ad card: it must contain the Library ID anchor AND have a
-     * reasonable size. We cap the climb so we never select the whole feed.
+     * Walk upward from a text anchor to the single ad card that owns it.
+     *
+     * The card boundary is the HIGHEST ancestor whose subtree still contains
+     * exactly one "Library ID" — one hop higher and the node balloons out to
+     * the shared results container (which holds every card).
+     *
+     * NOTE: we deliberately do NOT gate on element height. The Ad Library
+     * virtualizes its feed, so off-screen cards report a bounding height of 0;
+     * an earlier height filter caused every card except the one in the
+     * viewport to be dropped. Counting Library IDs is layout-independent and
+     * works for on- and off-screen cards alike.
      */
     const findCardRoot = (anchor: Element): Element | null => {
       let node: Element | null = anchor;
-      let best: Element | null = null;
+      let chosen: Element | null = null;
       let hops = 0;
-      while (node && hops < 12) {
+      while (node && hops < 16) {
         const txt = (node as HTMLElement).innerText ?? "";
-        const hasId = /library id/i.test(txt);
-        const rect = (node as HTMLElement).getBoundingClientRect?.();
-        const tallEnough = rect ? rect.height > 120 : false;
-        if (hasId && tallEnough) best = node;
-        // Stop climbing once the node starts containing MANY library ids
-        // (that means we've ballooned out to the results container).
         const idCount = (txt.match(/library id/gi) || []).length;
-        if (idCount > 1) break;
+        if (idCount === 1) {
+          // Still scoped to a single card — remember this as the best root.
+          chosen = node;
+        } else if (idCount > 1) {
+          // One hop too far: we've reached the shared results container.
+          break;
+        }
         node = node.parentElement;
         hops += 1;
       }
-      return best;
+      return chosen;
     };
 
     const classifyMedia = (url: string): "image" | "video" | "unknown" => {
