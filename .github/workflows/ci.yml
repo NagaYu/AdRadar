@@ -39,3 +39,6 @@ jobs:
 
       - name: Unit tests
         run: npm test
+
+      - name: Build (verify the bundle compiles)
+        run: npm run build

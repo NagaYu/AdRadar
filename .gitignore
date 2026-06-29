@@ -42,6 +42,12 @@ test-results/
 # ───────────────────────────────────────────────────────────
 logs/
 *.log
+
+# ───────────────────────────────────────────────────────────
+# Local diagnostic / scratch scripts
+# ───────────────────────────────────────────────────────────
+diag.mjs
+diag*.png
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
