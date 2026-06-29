@@ -1,0 +1,61 @@
+name: 🐞 Bug report
+description: Something isn't working — including scraper breakage (0 ads / wrong data)
+title: "[bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a bug! AdRadar scrapes a third-party site that changes often, so **scraper breakage is expected over time** — these reports are genuinely useful.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug and what you expected instead.
+      placeholder: "AdRadar reported 0 ads for a page that clearly has live ads in the Ad Library UI."
+    validations:
+      required: true
+  - type: input
+    id: command
+    attributes:
+      label: Exact command
+      description: The full command you ran (redact webhooks).
+      placeholder: 'node dist/index.js --page-id "123456789" --no-headless --dry-run'
+    validations:
+      required: true
+  - type: dropdown
+    id: headful-check
+    attributes:
+      label: With `--no-headless`, do ads visibly render in the browser?
+      description: This tells us whether it's a scrape-block issue or an extraction (selector) issue.
+      options:
+        - "Yes — ads render, but AdRadar extracts 0 / wrong data (likely a selector bug)"
+        - "No — the page is blank / shows a login or block wall (likely a fingerprint/region issue)"
+        - "Haven't tried --no-headless yet"
+        - "Not applicable (different kind of bug)"
+    validations:
+      required: true
+  - type: input
+    id: region
+    attributes:
+      label: Country / region you're running from
+      description: The Ad Library region-gates some content.
+      placeholder: "Japan (and --country US)"
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Terminal output
+      description: Paste the relevant AdRadar progress output (it runs to stderr).
+      render: shell
+    validations:
+      required: false
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      description: Node version, OS, AdRadar version/commit.
+      placeholder: "Node 20.11, macOS 15, AdRadar v0.1.0"
+    validations:
+      required: true

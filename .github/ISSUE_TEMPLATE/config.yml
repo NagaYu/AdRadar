@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Questions & usage help
+    url: https://github.com/NagaYu/AdRadar/discussions
+    about: For "how do I…" questions and general discussion, please use Discussions (if enabled) rather than opening an issue.
+  - name: 📖 Read the docs first
+    url: https://github.com/NagaYu/AdRadar#readme
+    about: The README covers setup, the CLI reference, troubleshooting, and project status.

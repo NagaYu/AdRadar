@@ -1,0 +1,27 @@
+name: ✨ Feature request
+description: Suggest a new capability or improvement
+title: "[feat]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: The use case / pain point behind the request.
+      placeholder: "I track 30 competitors and want a weekly digest instead of per-run pings."
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What you'd like AdRadar to do. A new flag? A new transport? An export format?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any workarounds you've tried or other approaches you weighed.
+    validations:
+      required: false

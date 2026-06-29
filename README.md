@@ -106,6 +106,49 @@ Now every new ad and every newly-crowned winner lands in your channel automatica
 
 ---
 
+## 📟 Sample output
+
+A real run against the live Ad Library (trimmed). **First run** seeds the snapshot and reports everything currently live:
+
+```text
+  ╔═══════════════════════════════════════╗
+  ║          📡  A D R A D A R            ║
+  ╚═══════════════════════════════════════╝
+  Competitive Meta-ad radar · new & winner detection
+
+▸ Scraping Meta Ad Library
+  › First results rendered
+  › Scroll pass 1/3 — height 5205 -> 7500, ~36 cards
+  › Scroll pass 2/3 — height 7500 -> 9250, ~44 cards
+  › Scroll pass 3/3 — height 9250 -> 10990, ~53 cards
+  › Extracting ad cards from the DOM
+  › Extracted 53 unique ad(s)
+  ✓ Scraped 53 active ad(s) in 19.4s
+
+▸ Reconciling against snapshot
+  🆕 53 new  ·  🏆 0 winner(s)  ·  0 still running
+    🆕 NEW Whatnot [1502078871070045] 227d
+        “Yup, you can buy new outfits without breaking the bank. Save on fashion ⚡️ …”
+        media: https://video.xx.fbcdn.net/o1/v/t2/f2/m412/AQPSgzJ9D0G8C_vmw8meoIzZY…
+    🆕 NEW Nike [1016451784037642] 374d
+        “Get the gear that goes hard on and off the field. NIKE.COM Nike Air Monarch …”
+        media: https://scontent.xx.fbcdn.net/v/t39.35426-6/508595289_38944231908099…
+```
+
+The **next run** only surfaces what changed — and crowns the proven evergreens:
+
+```text
+▸ Reconciling against snapshot
+  loaded 53 previously-tracked ad(s)
+  🆕 0 new  ·  🏆 43 winner(s)  ·  1 still running
+    🏆 WINNER Whatnot [1502078871070045] 227d
+    🏆 WINNER Nike [1016451784037642] 374d
+```
+
+> Those `227d` / `374d` ads have been running for months — that's the public, audited signal that they convert. **Those are the creatives to study.**
+
+---
+
 ## 🛰️ How it works
 
 ```mermaid
