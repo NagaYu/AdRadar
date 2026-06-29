@@ -19,6 +19,12 @@ Brand-new and long-running ads are pushed straight to **Slack** or **Discord** w
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6.svg)](https://www.typescriptlang.org)
 [![Tests](https://img.shields.io/badge/unit%20tests-25%20passing-success.svg)](#-project-status)
 
+<br/>
+
+<img src="assets/demo.svg" alt="AdRadar in action: scraping the Meta Ad Library, extracting 53 ads, and flagging 43 long-running winners" width="760" />
+
+<sub>↑ a real run (replayed) — find competitors' new ads <strong>and</strong> the evergreen winners they keep paying to run.</sub>
+
 </div>
 
 ---
