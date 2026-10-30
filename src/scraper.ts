@@ -171,6 +171,37 @@ function synthesizeId(text: string, mediaUrl: string | undefined): string {
 }
 
 /**
+ * Normalize raw DOM extractions into {@link Ad}s: parse the start date,
+ * synthesize an id when Meta gave us none, and fill in the Ad Library
+ * permalink. The live DOM no longer exposes a per-ad link, so when the card
+ * had none we build `https://www.facebook.com/ads/library/?id=<id>` — but only
+ * for a real (all-digit) Library ID, never for a synthetic one.
+ */
+export function normalizeRawAds(rawAds: RawAd[]): Ad[] {
+  return rawAds.map((raw) => {
+    const startedRunningOn = parseStartedRunning(raw.startedRunningRaw);
+    const adId =
+      raw.adId && raw.adId.trim().length > 0
+        ? raw.adId.trim()
+        : synthesizeId(raw.text, raw.media[0]?.url);
+    const adLibraryUrl =
+      raw.adLibraryUrl ??
+      (/^\d+$/.test(adId) ? `https://www.facebook.com/ads/library/?id=${adId}` : null);
+
+    return {
+      adId,
+      startedRunningRaw: raw.startedRunningRaw,
+      startedRunningOn,
+      text: raw.text,
+      media: raw.media,
+      pageName: raw.pageName,
+      adLibraryUrl,
+      active: raw.active,
+    };
+  });
+}
+
+/**
  * Public progress callback so the CLI can render nice spinners/lines without
  * the scraper importing the CLI layer.
  */
@@ -283,25 +314,9 @@ export async function scrapeAdLibrary(
     onProgress(dim("Extracting ad cards from the DOM"));
     const rawAds = await extractAds(page);
 
-    // Normalize / enrich on the Node side (parsing dates, synthesizing ids).
-    const ads: Ad[] = rawAds.map((raw) => {
-      const startedRunningOn = parseStartedRunning(raw.startedRunningRaw);
-      const adId =
-        raw.adId && raw.adId.trim().length > 0
-          ? raw.adId.trim()
-          : synthesizeId(raw.text, raw.media[0]?.url);
-
-      return {
-        adId,
-        startedRunningRaw: raw.startedRunningRaw,
-        startedRunningOn,
-        text: raw.text,
-        media: raw.media,
-        pageName: raw.pageName,
-        adLibraryUrl: raw.adLibraryUrl,
-        active: raw.active,
-      };
-    });
+    // Normalize / enrich on the Node side (parsing dates, synthesizing ids,
+    // building permalinks).
+    const ads: Ad[] = normalizeRawAds(rawAds);
 
     // De-duplicate by adId — the same card can appear twice mid-virtualization.
     const deduped = new Map<string, Ad>();
@@ -461,7 +476,7 @@ async function infiniteScroll(
  * without the Node-side enrichments (parsed date / synthesized id), because
  * those are easier and safer to compute outside the browser sandbox.
  */
-interface RawAd {
+export interface RawAd {
   adId: string | null;
   startedRunningRaw: string | null;
   text: string;
@@ -602,7 +617,9 @@ async function extractAds(page: Page): Promise<RawAd[]> {
       const links = Array.from(card.querySelectorAll("a[href]")) as HTMLAnchorElement[];
       for (const link of links) {
         const href = link.href || "";
-        if (/\/ads\/library\/\?id=/.test(href) || /[?&]id=\d{6,}/.test(href)) {
+        // Only a real Ad Library permalink — a bare `[?&]id=` would also match
+        // a creator's `profile.php?id=…` page link.
+        if (/\/ads\/library\/\?id=/.test(href)) {
           adLibraryUrl = href;
           if (!adId) {
             const m = href.match(/[?&]id=(\d{6,})/);
