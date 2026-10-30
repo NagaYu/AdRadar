@@ -12,12 +12,12 @@
 Brand-new and long-running ads are pushed straight to **Slack** or **Discord** with the copy, the start date, and an **image preview** — so your whole growth team sees them before your competitor's funnel out-converts yours.
 
 [![CI](https://github.com/NagaYu/AdRadar/actions/workflows/ci.yml/badge.svg)](https://github.com/NagaYu/AdRadar/actions/workflows/ci.yml)
-[![Status: Experimental](https://img.shields.io/badge/status-experimental-orange.svg)](#-project-status)
+[![Status: v0.1 · selector maintenance](https://img.shields.io/badge/status-v0.1%20%C2%B7%20selector%20maintenance-yellow.svg)](#-project-status)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D18-43853d.svg)](https://nodejs.org)
 [![Built with Playwright](https://img.shields.io/badge/built%20with-Playwright-2EAD33.svg)](https://playwright.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6.svg)](https://www.typescriptlang.org)
-[![Tests](https://img.shields.io/badge/unit%20tests-25%20passing-success.svg)](#-project-status)
+[![Tests](https://img.shields.io/badge/unit%20tests-30%20passing-success.svg)](#-project-status)
 
 <br/>
 
@@ -29,17 +29,14 @@ Brand-new and long-running ads are pushed straight to **Slack** or **Discord** w
 
 ---
 
-## 🧪 Project status
+## 🧭 Project status
 
-> **AdRadar is `experimental` (v0.1).** Read this before you rely on it.
->
-> - ✅ **The core logic is tested.** Snapshot diffing, new/winner detection, date parsing, and URL building are covered by **25 passing unit tests** (`npm test`) and the project typechecks under `strict` mode.
-> - ✅ **The scraper has been validated end-to-end against the live Ad Library** (2026-06-29): a single run extracted 53 distinct ads — each with its Library ID, advertiser, body copy, image/video URL, and a correctly computed run-length — and a follow-up run correctly flagged the long-running ones as winners. Two real bugs were found and fixed in the process (hand-spoofed `Sec-Ch-Ua` client-hint headers blanked the page; a height-based card filter dropped virtualized/off-screen cards).
-> - ⚠️ **Scraping is inherently brittle.** Meta's Ad Library is a heavily obfuscated, frequently-changing SPA. It can return zero results behind region/login gates, throttle datacenter IPs, or rename the text anchors the extractor relies on, **at any time and without notice**. A clean run today is not a guarantee for tomorrow — treat output as something to spot-check, not blindly trust.
-> - 🩹 **Expect to maintain the selectors.** When Meta changes its DOM, update the regexes/anchors in `extractAds`, `dismissCookieBanner`, and `infiniteScroll`. This is the cost of scraping, not a bug.
+> **AdRadar is v0.1 — the scraper requires periodic selector maintenance.**
+> - ✅ **Core logic is tested.** Snapshot diffing, new/winner detection, date parsing, and URL building are covered by unit tests (`npm test`), and the project typechecks under `strict` mode.
+> - ✅ **Last validated end-to-end against the live Ad Library on 2026-10-31** (headless and `--no-headless`, 3 scroll passes per page): two advertiser pages returned 85–96 ads each, every one with its Library ID, advertiser, body copy, media URL, and start date; a follow-up run flagged exactly the ads running ≥ 7 days as winners. A page with no active ads correctly returned zero. (Previous validation: 2026-06-29.)
+> - ✅ **Ad Library permalinks are constructed from the Library ID.** The live DOM no longer exposes a per-ad link, so AdRadar builds `https://www.facebook.com/ads/library/?id=<Library ID>` locally; a spot check on 2026-10-31 confirmed a constructed URL opens that ad's page.
+> - 🛠️ **Selectors will drift.** Meta's Ad Library is an obfuscated, frequently-changing SPA. When it changes, update the regexes/anchors in `extractAds`, `dismissCookieBanner`, and `infiniteScroll`. Region/login gates and datacenter-IP throttling can also yield zero results. A clean run today is not a guarantee for tomorrow — spot-check the output.
 > - 🧭 **First run tip:** start with `node dist/index.js --page-id <id> --no-headless --dry-run` so you can *watch* the browser and confirm cards are actually being extracted before wiring up webhooks.
->
-> Contributions that harden the scraper against real-world DOM drift are especially welcome.
 
 ---
 
